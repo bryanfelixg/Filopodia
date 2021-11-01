@@ -3,6 +3,7 @@ Looking at
 du/dt = D1(A_yy u + u A_xx) + au^2/v + ubar - au
 dv/dt = D2(A_yy v + v A_xx) + au^2   - βv
 =#
+using SparseArrays
 using LinearAlgebra
 using DifferentialEquations
 using BenchmarkTools
@@ -43,7 +44,7 @@ function basic!(dr,r,p,t)
     mul!(vAxx,v,Axx)
     @. Du = D1*(Ayyu + uAxx)
     @. Dv = D2*(Ayyv + vAxx)
-    @. du = Du #+ a*u*u/v + ubar - α*u
+    @. du = Du + a*u*u/v + ubar - α*u
     @. dv = Dv + a*u*u   - β*v
 end
 
