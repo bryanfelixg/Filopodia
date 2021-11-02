@@ -10,11 +10,21 @@ using DifferentialEquations
 using Sundials
 using Plots
 #using DiffEqOperators
+using Distributed
 
+##
+include("sampling.jl")
+
+##
+for i=0:.2:5 
+    @distributed for j= 0:.2:5
+            sampling(i,j)
+        end
+end
 ## Some constants
-tspan = (0.0,100.0)
-N  = 500
-p  = (1.0 , 2.0 , 5.0 , 0.5 , 0.5 , .7, .1 *50, 1.0*50) # D1,D2
+tspan = (0.0,50.0)
+N  = 200
+p  = (1.55 , 2.0 , 5.0 , 0.5 , 0.5 , .7, .1 , 1.0) # D1,D2
 
 #p  = (1.0 , 2.0 , 5.0 , 0.5 , 0.58 , 1.0, .1 , 1.0)  # D1,D2
 
@@ -99,7 +109,8 @@ for i=1:size(sol.t)[1]
         xlabel="x values", ylabel="y values",
         clims = clims,
         title="PIP3")
-    plot(p1,p2,p3,p3,layout=grid(2,2),size=(500,400)) |>display
+    fig=plot(p1,p2,p3,p3,layout=grid(2,2),size=(500,400)) 
+    savefig(fig,"results/plot"*"s$N"*".png")
 end
 
 
