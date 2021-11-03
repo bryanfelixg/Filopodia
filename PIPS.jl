@@ -13,18 +13,13 @@ using Plots
 using Distributed
 
 ##
-include("sampling.jl")
+#include("sampling.jl")
 
-##
-for i=0:.2:5 
-    @distributed for j= 0:.2:5
-            sampling(i,j)
-        end
-end
 ## Some constants
-tspan = (0.0,50.0)
-N  = 200
-p  = (1.55 , 2.0 , 5.0 , 0.5 , 0.5 , .7, .1 , 1.0) # D1,D2
+tspan = (0.0,600.0)
+m = 2
+N  = 100
+p  = (5.0 , 5.0, 1.0 , 10.0 , 1.0 , 0.04, .8 , .2) # D1,D2
 
 #p  = (1.0 , 2.0 , 5.0 , 0.5 , 0.58 , 1.0, .1 , 1.0)  # D1,D2
 
@@ -82,11 +77,12 @@ prob = ODEProblem(basic!,r0,tspan,p)
 sol = solve(prob,CVODE_BDF(linear_solver=:GMRES),
 progress=true,
 save_everystep=false,
-saveat = range(tspan[1],tspan[2], length=20)) 
+saveat = range(tspan[1],tspan[2], length=50)) ;
+sol.retcode|>print
 
 ##
 clims = (0,1);
-for i=1:size(sol.t)[1]
+anim = @animate for i=1:size(sol.t)[1]
     gr()
     data1 = @view sol.u[i][:,:,1]
     data2 = @view sol.u[i][:,:,2]
@@ -109,16 +105,22 @@ for i=1:size(sol.t)[1]
         xlabel="x values", ylabel="y values",
         clims = clims,
         title="PIP3")
-    fig=plot(p1,p2,p3,p3,layout=grid(2,2),size=(500,400)) 
-    savefig(fig,"results/plot"*"s$N"*".png")
-end
+    p4=heatmap(1:size(data3,1),
+        1:size(data3,2), 1.0.-data3,
+        c=cgrad([:blue, :white,:red, :yellow]),
+        xlabel="x values", ylabel="y values",
+        clims = clims,
+        title="PIP2")
 
+    fig=plot(p1,p2,p3,p4,layout=grid(2,2),size=(1000,800)) 
+    #savefig(fig,"results/plot"*"s$N"*".png")
+end
+gif(anim, "animations/anim_fps15.gif", fps = 5);
 
 ##
-# X = reshape([i for i in 1:100 for j in 1:100],N,N)
+#  X = reshape([i for i in 1:100 for j in 1:100],N,N)
 # Y = reshape([j for i in 1:100 for j in 1:100],N,N)
 # p1 = surface(X,Y,sol.u[3][:,:,1],title = "[A]",camera=(0,90))
 # p2 = surface(X,Y,sol.u[3][:,:,2],title = "[B]",camera=(0,90))
 # plot(p1,p2,layout=grid(2,1)) 
 
-####animate(sol)

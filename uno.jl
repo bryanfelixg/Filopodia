@@ -10,7 +10,7 @@ using BenchmarkTools
 using Sundials
 using Plots
 ## Some constants
-tspan = (0.0,10.0)
+tspan = (0.0,100.0)
 p  = (1.0,1.0,1.0,10.0,10,1.0) # a,α,ubar,β,D1,D2
 N  = 100
 Axx = Array(Tridiagonal(
